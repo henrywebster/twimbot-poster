@@ -25,13 +25,20 @@ def add_to_bucket(file):
     )
 
 
-@pytest.mark.parametrize("file", [{"filename": "test-0.png", "data": b"testdata"}])
-def test_s3_image_handler(file, s3_bucket):
+@pytest.mark.parametrize(
+    ("file", "callback", "expected"),
+    [
+        (
+            {"filename": "test-0.png", "data": b"testdata"},
+            lambda file_handle: file_handle.read(),
+            b"testdata",
+        ),
+    ],
+)
+def test_s3_image_handler(file, callback, expected, s3_bucket):
     handler = S3ImageHandler(s3_bucket)
     add_to_bucket(file)
-    assert file["data"] == handler.handle(
-        "test-0.png", lambda file_handle: file_handle.read()
-    )
+    assert expected == handler.handle("test-0.png", callback)
 
 
 def test_s3_image_handler_image_error(s3_bucket):

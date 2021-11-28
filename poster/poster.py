@@ -72,3 +72,35 @@ class S3ImageHandler(ImageHandler):  # pylint: disable=too-few-public-methods
             file_handle.seek(0)
 
             return callback(file_handle)
+
+
+class Tweeter(ABC):  # pylint: disable=too-few-public-methods
+    """
+    Interface for the Twitter API.
+    """
+
+    @abstractmethod
+    def post(self, title, file_handle):
+        """
+        Post image to Twitter and return Tweet ID.
+        """
+
+
+class TweepyTweeter(Tweeter):  # pylint: disable=too-few-public-methods
+    """
+    Tweepy implementation of Tweeter.
+    """
+
+    def __init__(self, tweepy):
+        self.tweepy = tweepy
+
+    def post(self, title, file_handle):
+        self.tweepy.update_status(
+            title,
+            media_ids=[
+                self.tweepy.simple_upload(
+                    filename="image.png", file=file_handle
+                ).media_id
+            ],  # warning: hardcoded PNG support
+        )
+        return True
