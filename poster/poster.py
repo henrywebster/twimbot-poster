@@ -2,6 +2,7 @@
 Classes used by the python posting script.
 """
 from abc import ABC, abstractmethod
+import tempfile
 
 
 class Journal(ABC):
@@ -41,3 +42,33 @@ class DynamoDBJournal(Journal):
             UpdateExpression="REMOVE process_time",
             ConditionExpression="attribute_exists(id) and attribute_exists(process_time)",
         )
+
+
+class ImageHandler(ABC):  # pylint: disable=too-few-public-methods
+    """
+    Retrieves and operates on images files.
+    """
+
+    @abstractmethod
+    def handle(self, filename, callback):
+        """
+        Retrieve and perform an operation and the file.
+        """
+
+
+class S3ImageHandler(ImageHandler):  # pylint: disable=too-few-public-methods
+    """
+    Amazon S3 implementation of ImageHandler.
+    """
+
+    def __init__(self, s3_bucket):
+        self.s3_bucket = s3_bucket
+
+    def handle(self, filename, callback):
+        with tempfile.SpooledTemporaryFile() as file_handle:
+            self.s3_bucket.download_fileobj(filename, file_handle)
+
+            # move pointer to beginning of buffer for reading
+            file_handle.seek(0)
+
+            return callback(file_handle)
