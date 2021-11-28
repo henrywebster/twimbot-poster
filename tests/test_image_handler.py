@@ -1,5 +1,6 @@
 import pytest
 import boto3
+from botocore.exceptions import ClientError
 from moto import mock_s3
 from poster import S3ImageHandler
 
@@ -31,3 +32,20 @@ def test_s3_image_handler(file, s3_bucket):
     assert file["data"] == handler.handle(
         "test-0.png", lambda file_handle: file_handle.read()
     )
+
+
+def test_s3_image_handler_image_error(s3_bucket):
+    handler = S3ImageHandler(s3_bucket)
+    with pytest.raises(ClientError):
+        handler.handle("test-0.png", lambda file_handle: file_handle.read())
+
+
+@pytest.mark.parametrize(
+    ("file", "callback"),
+    [({"filename": "test-0.png", "data": b"testdata"}, lambda file_handler: 1 / 0)],
+)
+def test_s3_image_handler_callback_error(file, callback, s3_bucket):
+    handler = S3ImageHandler(s3_bucket)
+    add_to_bucket(file)
+    with pytest.raises(ZeroDivisionError):
+        handler.handle("test-0.png", callback)
