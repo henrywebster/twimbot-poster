@@ -41,3 +41,27 @@ class DynamoDBJournal(Journal):
             UpdateExpression="REMOVE process_time",
             ConditionExpression="attribute_exists(id) and attribute_exists(process_time)",
         )
+
+
+class ImageHandler(ABC):
+    """
+    Retrieves and operates on images files.
+    """
+
+    @abstractmethod
+    def handle(self, file, callback):
+        """
+        Retrieve and perform an operation and the file.
+        """
+
+
+class S3ImageHandler(ImageHandler):
+    """
+    Amazon S3 implementation of ImageHandler.
+    """
+
+    def __init__(self, s3_bucket):
+        self.s3_bucket = s3_bucket
+
+    def handle(self, file, callback):
+        pass
