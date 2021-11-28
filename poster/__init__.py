@@ -1,1 +1,1 @@
-from .poster import DynamoDBJournal, S3ImageHandler  # noqa: F401
+from .poster import DynamoDBJournal, S3ImageHandler, TweepyTweeter  # noqa: F401
