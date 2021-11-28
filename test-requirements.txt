@@ -23,8 +23,6 @@ packaging==21.3
 pathspec==0.9.0
 platformdirs==2.4.0
 pluggy==1.0.0
-# Editable Git install with no remote (poster==0.0.0)
--e /home/henry/code/twimbot-poster
 py==1.11.0
 pycodestyle==2.8.0
 pycparser==2.21
