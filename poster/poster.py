@@ -95,11 +95,12 @@ class TweepyTweeter(Tweeter):  # pylint: disable=too-few-public-methods
         self.tweepy = tweepy
 
     def post(self, title, file_handle):
-        # TODO try to do in functional order
         self.tweepy.update_status(
             title,
             media_ids=[
-                self.tweepy.simple_upload(file_handle.name, file=file_handle).media_id
-            ],  # TODO check if need filename
+                self.tweepy.simple_upload(
+                    filename="image.png", file=file_handle
+                ).media_id
+            ],  # warning: hardcoded PNG support
         )
         return True
