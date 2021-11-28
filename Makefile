@@ -6,7 +6,7 @@ install:
 
 test: poster tests
 	flake8 poster tests &&\
-		pytest -v &&\
+		pytest -v tests/ &&\
 		pylint poster/poster.py
 
 format:

@@ -24,7 +24,6 @@ packaging==21.3
 pathspec==0.9.0
 platformdirs==2.4.0
 pluggy==1.0.0
--e git+https://github.com/henrywebster/twimbot-poster.git@31868656daeb804a490f2fa6f6c904cb6d2e8523#egg=poster
 py==1.11.0
 pycodestyle==2.8.0
 pycparser==2.21
