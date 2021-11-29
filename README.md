@@ -102,7 +102,13 @@ Currently, the project is only integrated with Amazon Web Services, but support 
 
 ## Libraries Used
 
--   [tweepy](https://www.tweepy.org/) for Twitter integration
+-   [`tweepy`](https://www.tweepy.org/) for Twitter integration
+-   [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) for AWS integration
+-   [`pytest`](https://github.com/pytest-dev/pytest) for testing
+-   [`moto`](https://github.com/spulec/moto) for mocking AWS services
+-   [`pylint`](https://github.com/PyCQA/pylint) for linting
+-   [`black`](https://github.com/psf/black) for formatting
+-   [`flake8`](https://github.com/pycqa/flake8) for style guide enforcement
 
 ## Future Work 📅
 
