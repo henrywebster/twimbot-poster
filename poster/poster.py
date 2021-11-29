@@ -33,7 +33,7 @@ class DynamoDBJournal(Journal):
     """
 
     def __init__(self, dynamodb_table, index):
-        logger.info(f"DynamoDB table (index) - {dynamodb_table.name} ({index})")
+        logger.info("DynamoDB table (index) - {} ({})", dynamodb_table.name, index)
         self.dynamodb_table = dynamodb_table
         self.index = index
 
@@ -67,7 +67,7 @@ class S3ImageHandler(ImageHandler):  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, s3_bucket):
-        logger.info(f"S3 bucket - {s3_bucket.name}")
+        logger.info("S3 bucket - {}", s3_bucket.name)
         self.s3_bucket = s3_bucket
 
     def handle(self, filename, callback):
@@ -111,7 +111,7 @@ class TweepyTweeter(Tweeter):  # pylint: disable=too-few-public-methods
         ).id
 
 
-class Poster:
+class Poster:  # pylint: disable=too-few-public-methods
     """
     Runs the posting job.
     """

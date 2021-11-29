@@ -16,7 +16,7 @@ def wrapper():
     tweepy_api = tweepy.API(auth)
     tweeter = TweepyTweeter(tweepy_api)
 
-    logger.info("AWS region - {}".format(os.getenv("AWS_REGION")))
+    logger.info("AWS region - {}", os.getenv("AWS_REGION"))
 
     dynamodb_table = boto3.resource(
         "dynamodb", region_name=os.getenv("AWS_REGION")
