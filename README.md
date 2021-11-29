@@ -100,7 +100,7 @@ Currently, the project is only integrated with Amazon Web Services, but support 
 
 -   [S3](https://aws.amazon.com/s3/)
 
-## Libraries Used
+## Libraries Used 📚
 
 -   [`tweepy`](https://www.tweepy.org/) for Twitter integration
 -   [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) for AWS integration
