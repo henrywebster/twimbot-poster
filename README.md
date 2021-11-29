@@ -47,7 +47,7 @@ Make sure the `.env` file is never checked in as it contains sensitive informati
 
 To obtain the `ACCESS_TOKEN`, `ACCESS_TOKEN_SECRET`, `CONSUMER_KEY`, and `CONUSMER_KEY_SECRET`, register an application on the [Twitter Developer](https://developer.twitter.com/en) portal.
 
-To obtain the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, follow the instructions provided for [AWS Credentials](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html) and ensure the account has the neccessary permissions (more detail on that to come).
+To obtain the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, follow the instructions provided for [AWS Credentials](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html) and ensure the account has the neccessary permissions (read and write on the S3 bucket and DynamoDB table).
 
 Instructions for creating the AWS resources are coming in the future, but can be reverse-engineered by taking a look at the [scripts](https://github.com/henrywebster/twimbot-poster/tree/main/scripts) and [unit tests](https://github.com/henrywebster/twimbot-poster/blob/main/tests/test_journal.py).
 
@@ -57,7 +57,7 @@ Use the `run` target to run the docker image:
 make run
 ```
 
-A successful execution with return the Twitter status ID:
+A successful execution will return the Twitter status ID:
 
 ```
 $ make run
@@ -105,3 +105,4 @@ Currently, the project is only integrated with Amazon Web Services, but support 
 -   Support more implementations beyond DynamoDB and S3
 -   Include detailed instructions on setting up the AWS services or provide a [CloudFormation template](https://aws.amazon.com/cloudformation/).
 -   Set up a GitHub Action to publish the docker container
+-   Enable project versioning
