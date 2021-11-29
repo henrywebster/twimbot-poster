@@ -1,9 +1,9 @@
-# Twimbot Poster
+# Twimbot Poster 🐦🤖
 
 ![test](https://github.com/henrywebster/twimbot-poster/actions/workflows/test.yml/badge.svg)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## Overview
+## Overview 🗒️
 
 `twimbot-poster` is a dockerized application part of the _twimbot (twITTER imAGE bot)_ project.
 
@@ -14,7 +14,7 @@ It's purpose is to:
 3. Post the image to Twitter
 4. Update the image as posted in the database
 
-## Building
+## Building 🏗️
 
 Ensure you have [docker](https://docs.docker.com/get-docker/) installed and run the build command to create a docker image:
 
@@ -22,7 +22,7 @@ Ensure you have [docker](https://docs.docker.com/get-docker/) installed and run 
 make build
 ```
 
-## Running
+## Running 🏃
 
 Copy the [`.sample-env`](https://github.com/henrywebster/twimbot-poster/blob/main/.sample-env) file to `.env` and fill out the environment variables:
 
@@ -65,7 +65,7 @@ docker run --env-file .env twimbot-poster
 1465148781968699395
 ```
 
-## Testing
+## Testing 🧪
 
 To test the application, setup a python [virtual environment](https://docs.python.org/3/library/venv.html):
 
@@ -88,7 +88,7 @@ make test
 
 The project has [GitHub Actions](https://github.com/features/actions) setup to run the tests upon PR.
 
-## Support
+## Support 💪
 
 Currently, the project is only integrated with Amazon Web Services, but support for other integrations in the future is possible.
 
@@ -100,7 +100,11 @@ Currently, the project is only integrated with Amazon Web Services, but support 
 
 -   [S3](https://aws.amazon.com/s3/)
 
-## Future Work
+## Libraries Used
+
+-   [tweepy](https://www.tweepy.org/) for Twitter integration
+
+## Future Work 📅
 
 -   Support more implementations beyond DynamoDB and S3
 -   Include detailed instructions on setting up the AWS services or provide a [CloudFormation template](https://aws.amazon.com/cloudformation/).
