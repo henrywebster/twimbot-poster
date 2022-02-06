@@ -140,3 +140,4 @@ cython_debug/
 .vscode
 
 .aws-sam
+samconfig.toml
