@@ -3,11 +3,14 @@ Application logic for twimbot-poster.
 """
 
 import json
-import boto3
 import os
 import tempfile
-import tweepy
 import random
+import logging
+import boto3
+import tweepy
+
+logger = logging.getLogger(__name__)
 
 
 def get_unposted(table, index):
@@ -29,14 +32,14 @@ def handle_image(bucket, filename, callback):
         return callback(file_handle)
 
 
-def post(tweepy, title, file_handle):
+def post(tweepy_api, title, file_handle):
     """
     Post an image to Twitter based on a title and given file handle.
     """
-    return tweepy.update_status(
+    return tweepy_api.update_status(
         title,
         media_ids=[
-            tweepy.simple_upload(filename="image.png", file=file_handle).media_id
+            tweepy_api.simple_upload(filename="image.png", file=file_handle).media_id
         ],  # warning: hardcoded PNG support
     ).id
 
@@ -57,6 +60,9 @@ def lambda_handler(event, context):
     """
     Process incoming events.
     """
+
+    logger.debug(event)
+    logger.debug(context)
 
     # table
     table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
