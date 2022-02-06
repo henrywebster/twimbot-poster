@@ -13,6 +13,9 @@ build:
 deploy:
 	sam deploy
 
+invoke:
+	sam local invoke "HelloWorldFunction" -e events/event.json --env-vars env.json
+
 # TODO: make docker image name variable
 run:
 	docker run --env-file .env twimbot-poster
@@ -25,4 +28,4 @@ test: $(SRC_DIR) $(TEST_DIR)
 format:
 	black $(SRC_DIR) $(TEST_DIR)
 
-.PHONY: install build run format
+.PHONY: install build run format invoke deploy

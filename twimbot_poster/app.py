@@ -31,7 +31,7 @@ def lambda_handler(event, context):
         "body": json.dumps(
             {
                 "message": "hello world",
-                "data": get_unposted(table, os.getenv("DYNAMODB_INDEX")),
+                "data": get_unposted(table, os.getenv("DYNAMODB_INDEX"))[0]["title"],
             }
         ),
     }
