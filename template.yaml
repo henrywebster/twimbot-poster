@@ -8,7 +8,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
     Function:
-        Timeout: 3
+        Timeout: 10
 
 Resources:
     HelloWorldFunction:
@@ -21,11 +21,28 @@ Resources:
                 - x86_64
             Environment:
                 Variables:
-                    AWS_REGION: !AWS_REGION
-                    DYNAMODB_INDEX: !DYNAMODB_INDEX
-                    DYNAMODB_TABLE: !DYNAMODB_TABLE
-                    S3_BUCKET: !S3_BUCKET
-                    ACCESS_TOKEN: !ACCESS_TOKEN
-                    ACCESS_TOKEN_SECRET: !ACCESS_TOKEN_SECRET
-                    CONSUMER_KEY: !CONSUMER_KEY
-                    CONSUMER_SECRET: !CONSUMER_SECRET
+                    DYNAMODB_INDEX: !Ref DynamoDbIndex
+                    DYNAMODB_TABLE: !Ref DynamoDbTable
+                    S3_BUCKET: !Ref S3Bucket
+                    S3_REGION: !Ref S3Region
+                    ACCESS_TOKEN: !Ref AccessToken
+                    ACCESS_TOKEN_SECRET: !Ref AccessTokenSecret
+                    CONSUMER_KEY: !Ref ConsumerKey
+                    CONSUMER_SECRET: !Ref ConsumerSecret
+Parameters:
+    DynamoDbIndex:
+        Type: String
+    DynamoDbTable:
+        Type: String
+    S3Bucket:
+        Type: String
+    S3Region:
+        Type: String
+    AccessToken:
+        Type: String
+    AccessTokenSecret:
+        Type: String
+    ConsumerKey:
+        Type: String
+    ConsumerSecret:
+        Type: String

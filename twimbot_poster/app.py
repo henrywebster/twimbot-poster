@@ -70,7 +70,7 @@ def lambda_handler(event, context):
     )
 
     # bucket
-    bucket = boto3.resource("s3", region_name=os.getenv("REGION_NAME")).Bucket(
+    bucket = boto3.resource("s3", region_name=os.getenv("S3_REGION")).Bucket(
         os.getenv("S3_BUCKET")
     )
 

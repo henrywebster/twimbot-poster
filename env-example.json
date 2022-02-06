@@ -1,9 +1,9 @@
 {
     "HelloWorldFunction": {
-        "AWS_REGION": "",
         "DYNAMODB_TABLE": "",
         "DYNAMODB_INDEX": "",
         "S3_BUCKET": "",
+        "S3_REGION": "",
         "ACCESS_TOKEN": "",
         "ACCESS_TOKEN_SECRET": "",
         "CONSUMER_KEY": "",
