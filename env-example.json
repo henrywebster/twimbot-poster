@@ -1,0 +1,8 @@
+{
+    "HelloWorldFunction": {
+        "AWS_REGION": "",
+        "DYNAMODB_TABLE": "",
+        "DYNAMODB_INDEX": "",
+        "S3_BUCKET": ""
+    }
+}

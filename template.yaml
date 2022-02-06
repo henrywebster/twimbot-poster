@@ -21,6 +21,6 @@ Resources:
                 - x86_64
             Environment:
                 Variables:
-                    DYNAMODB_INDEX: unposted-index
-                    DYNAMODB_TABLE: 2x2-bot-table
-                    S3_BUCKET: 2x2-bot-bucket
+                    DYNAMODB_INDEX: !DYNAMODB_INDEX
+                    DYNAMODB_TABLE: !DYNAMODB_TABLE
+                    S3_BUCKET: !S3_BUCKET
