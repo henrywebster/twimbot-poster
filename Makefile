@@ -5,7 +5,7 @@ TEST_DIR = tests
 
 install:
 	pip install --upgrade pip &&\
-		pip install -r test-requirements.txt
+		pip install -r tests/requirements.txt
 
 build:
 	sam build
