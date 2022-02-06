@@ -1,12 +1,14 @@
 import pytest
 import boto3
-from moto import mock_dynamodb2
-
+from moto import mock_dynamodb2, mock_s3
+from botocore.exceptions import ClientError
 from twimbot_poster import app
 
 DYNAMODB_REGION = "us-east-1"
 DYNAMODB_TABLE = "table"
 DYNAMODB_INDEX = "index"
+S3_REGION = "us-east-1"
+S3_BUCKET = "bucket"
 
 
 @pytest.fixture
@@ -49,6 +51,22 @@ def dynamodb_insert_entries(entries, dynamodb_table):
         dynamodb_table.put_item(Item=entry)
 
 
+@pytest.fixture
+def bucket():
+    s3 = mock_s3()
+    s3.start()
+    s3_resource = boto3.resource("s3", region_name=S3_REGION)
+    s3_resource.create_bucket(Bucket=S3_BUCKET)
+    yield s3_resource.Bucket(S3_BUCKET)
+    s3.stop()
+
+
+def add_to_bucket(file):
+    boto3.client("s3", region_name=S3_REGION).put_object(
+        Bucket=S3_BUCKET, Key=file["filename"], Body=file["data"]
+    )
+
+
 @pytest.fixture()
 def event():
     """Generates API GW Event"""
@@ -86,6 +104,36 @@ def test_get_unposted(entries, expected, table):
     unposted_entries = app.get_unposted(table, DYNAMODB_INDEX)
 
     assert expected == unposted_entries
+
+
+@pytest.mark.parametrize(
+    ("file", "callback", "expected"),
+    [
+        (
+            {"filename": "test-0.png", "data": b"testdata"},
+            lambda file_handle: file_handle.read(),
+            b"testdata",
+        ),
+    ],
+)
+def test_s3_image_handler(file, callback, expected, bucket):
+    add_to_bucket(file)
+    assert expected == app.handle_image(bucket, "test-0.png", callback)
+
+
+def test_s3_image_handler_image_error(bucket):
+    with pytest.raises(ClientError):
+        app.handle_image(bucket, "test-0.png", lambda file_handle: file_handle.read())
+
+
+@pytest.mark.parametrize(
+    ("file", "callback"),
+    [({"filename": "test-0.png", "data": b"testdata"}, lambda file_handler: 1 / 0)],
+)
+def test_s3_image_handler_callback_error(file, callback, bucket):
+    add_to_bucket(file)
+    with pytest.raises(ZeroDivisionError):
+        app.handle_image(bucket, "test-0.png", callback)
 
 
 # TODO: figure out integration mocks

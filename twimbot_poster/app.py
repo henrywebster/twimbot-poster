@@ -1,10 +1,20 @@
 import json
 import boto3
 import os
+import tempfile
 
 
 def get_unposted(table, index):
     return table.scan(IndexName=index)["Items"]
+
+
+def handle_image(bucket, filename, callback):
+    with tempfile.SpooledTemporaryFile() as file_handle:
+        bucket.download_fileobj(filename, file_handle)
+
+        # move pointer to beginning of buffer for reading
+        file_handle.seek(0)
+        return callback(file_handle)
 
 
 def lambda_handler(event, context):
