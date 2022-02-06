@@ -3,6 +3,11 @@ import boto3
 from moto import mock_dynamodb2, mock_s3
 from botocore.exceptions import ClientError
 from twimbot_poster import app
+from unittest.mock import MagicMock, patch
+import tempfile
+from dataclasses import dataclass
+
+import tweepy
 
 DYNAMODB_REGION = "us-east-1"
 DYNAMODB_TABLE = "table"
@@ -65,6 +70,20 @@ def add_to_bucket(file):
     boto3.client("s3", region_name=S3_REGION).put_object(
         Bucket=S3_BUCKET, Key=file["filename"], Body=file["data"]
     )
+
+
+@dataclass
+class Status:
+    """Tweepy status model"""
+
+    id: int
+
+    def __init__(self, status_id):
+        self.id = status_id
+
+
+def create_media(media_id):
+    return tweepy.Media({"media_key": media_id, "media_id": media_id, "type": "photo"})
 
 
 @pytest.fixture()
@@ -134,6 +153,16 @@ def test_s3_image_handler_callback_error(file, callback, bucket):
     add_to_bucket(file)
     with pytest.raises(ZeroDivisionError):
         app.handle_image(bucket, "test-0.png", callback)
+
+
+@patch.multiple(
+    "tweepy.API",
+    simple_upload=MagicMock(return_value=create_media("123")),
+    update_status=MagicMock(return_value=Status(456)),
+)
+def test_tweepy_tweeter(**mocks):
+    with tempfile.SpooledTemporaryFile("test-0.png") as file_handle:
+        assert app.post(tweepy.API(), "test-0.png", file_handle)
 
 
 # TODO: figure out integration mocks

@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 import tempfile
+import tweepy
 
 
 def get_unposted(table, index):
@@ -17,14 +18,29 @@ def handle_image(bucket, filename, callback):
         return callback(file_handle)
 
 
+def post(tweepy, title, file_handle):
+    return tweepy.update_status(
+        title,
+        media_ids=[
+            tweepy.simple_upload(filename="image.png", file=file_handle).media_id
+        ],  # warning: hardcoded PNG support
+    ).id
+
+
 def lambda_handler(event, context):
     """
     Sample pure Lambda function
     """
 
+    # table
     table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
         os.getenv("DYNAMODB_TABLE")
     )
+
+    # tweepy
+    auth = tweepy.OAuthHandler(os.getenv("CONSUMER_KEY"), os.getenv("CONSUMER_SECRET"))
+    auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
+    tweepy.API(auth)
 
     return {
         "statusCode": 200,
