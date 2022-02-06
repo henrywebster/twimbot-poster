@@ -86,13 +86,6 @@ def create_media(media_id):
     return tweepy.Media({"media_key": media_id, "media_id": media_id, "type": "photo"})
 
 
-@pytest.fixture()
-def event():
-    """Generates API GW Event"""
-
-    return {"body": '{ "test": "body"}'}
-
-
 @pytest.mark.parametrize(
     ("entries", "expected"),
     [
@@ -123,6 +116,61 @@ def test_get_unposted(entries, expected, table):
     unposted_entries = app.get_unposted(table, DYNAMODB_INDEX)
 
     assert expected == unposted_entries
+
+
+@pytest.mark.parametrize(
+    ("entries", "key", "expected"),
+    [
+        (
+            [
+                {"id": "test-0.png", "title": "example-0", "process_time": 1000},
+            ],
+            "test-0.png",
+            [],
+        ),
+        (
+            [
+                {"id": "test-0.png", "title": "example-0", "process_time": 1000},
+                {"id": "test-1.png", "title": "example-1", "process_time": 1000},
+                {"id": "test-2.png", "title": "example-2"},
+            ],
+            "test-1.png",
+            [
+                {"id": "test-0.png", "title": "example-0", "process_time": 1000},
+            ],
+        ),
+    ],
+)
+def test_dynamodb_journal_update_posted(entries, key, expected, table):
+    dynamodb_insert_entries(entries, table)
+    app.update_posted(table, key)
+
+    assert expected == table.scan(IndexName=DYNAMODB_INDEX)["Items"]
+
+
+@pytest.mark.parametrize(
+    ("entries", "key"),
+    [
+        ([], "test-0.png"),
+        (
+            [
+                {"id": "test-0.png", "title": "example-0", "process_time": 1000},
+            ],
+            "test-1.png",
+        ),
+        (
+            [
+                {"id": "test-0.png", "title": "example-0"},
+            ],
+            "test-0.png",
+        ),
+    ],
+)
+def test_dynamodb_journal_update_posted_error(entries, key, table):
+    dynamodb_insert_entries(entries, table)
+
+    with pytest.raises(ClientError):
+        app.update_posted(table, key)
 
 
 @pytest.mark.parametrize(
@@ -163,15 +211,3 @@ def test_s3_image_handler_callback_error(file, callback, bucket):
 def test_tweepy_tweeter(**mocks):
     with tempfile.SpooledTemporaryFile("test-0.png") as file_handle:
         assert app.post(tweepy.API(), "test-0.png", file_handle)
-
-
-# TODO: figure out integration mocks
-# def test_lambda_handler(event, mocker):
-
-#     ret = app.lambda_handler(event, "")
-#     data = json.loads(ret["body"])
-
-#     assert ret["statusCode"] == 200
-#     assert "message" in ret["body"]
-#     assert data["message"] == "hello world"
-#     # assert "location" in data.dict_keys()

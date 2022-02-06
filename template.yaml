@@ -21,6 +21,7 @@ Resources:
                 - x86_64
             Environment:
                 Variables:
+                    AWS_REGION: !AWS_REGION
                     DYNAMODB_INDEX: !DYNAMODB_INDEX
                     DYNAMODB_TABLE: !DYNAMODB_TABLE
                     S3_BUCKET: !S3_BUCKET

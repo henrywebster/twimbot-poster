@@ -1,15 +1,26 @@
+"""
+Application logic for twimbot-poster.
+"""
+
 import json
 import boto3
 import os
 import tempfile
 import tweepy
+import random
 
 
 def get_unposted(table, index):
+    """
+    Get entries from an unposted index.
+    """
     return table.scan(IndexName=index)["Items"]
 
 
 def handle_image(bucket, filename, callback):
+    """
+    Process an image file from Amazon S3.
+    """
     with tempfile.SpooledTemporaryFile() as file_handle:
         bucket.download_fileobj(filename, file_handle)
 
@@ -19,6 +30,9 @@ def handle_image(bucket, filename, callback):
 
 
 def post(tweepy, title, file_handle):
+    """
+    Post an image to Twitter based on a title and given file handle.
+    """
     return tweepy.update_status(
         title,
         media_ids=[
@@ -27,9 +41,21 @@ def post(tweepy, title, file_handle):
     ).id
 
 
+def update_posted(table, key):
+    """
+    Modify the entry of a given key in the database to remove it from the unposted index.
+    """
+    # removing this attribute will remove the entry from the sparse index
+    table.update_item(
+        Key={"id": key},
+        UpdateExpression="REMOVE process_time",
+        ConditionExpression="attribute_exists(id) and attribute_exists(process_time)",
+    )
+
+
 def lambda_handler(event, context):
     """
-    Sample pure Lambda function
+    Process incoming events.
     """
 
     # table
@@ -37,17 +63,30 @@ def lambda_handler(event, context):
         os.getenv("DYNAMODB_TABLE")
     )
 
+    # bucket
+    bucket = boto3.resource("s3", region_name=os.getenv("REGION_NAME")).Bucket(
+        os.getenv("S3_BUCKET")
+    )
+
     # tweepy
     auth = tweepy.OAuthHandler(os.getenv("CONSUMER_KEY"), os.getenv("CONSUMER_SECRET"))
     auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
-    tweepy.API(auth)
+    tweepy_api = tweepy.API(auth)
+
+    image = random.choice(get_unposted(table, os.getenv("DYNAMODB_INDEX")))
+    result = handle_image(
+        bucket,
+        image["id"],
+        lambda file_handle: post(tweepy_api, image["title"], file_handle),
+    )
+    update_posted(table, image["id"])
 
     return {
         "statusCode": 200,
         "body": json.dumps(
             {
                 "message": "hello world",
-                "data": get_unposted(table, os.getenv("DYNAMODB_INDEX"))[0]["title"],
+                "data": {"id": result},
             }
         ),
     }
