@@ -2,3 +2,6 @@ pytest
 pytest-mock
 boto3
 tweepy
+black
+flake8
+moto
