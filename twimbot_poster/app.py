@@ -78,17 +78,14 @@ def lambda_handler(event, context):
     logger.debug(context)
     logger.info("AWS Region: %s", os.getenv("AWS_REGION"))
 
-    # table
     table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
         os.getenv("DYNAMODB_TABLE")
     )
 
-    # bucket
     bucket = boto3.resource("s3", region_name=os.getenv("AWS_REGION")).Bucket(
         os.getenv("S3_BUCKET")
     )
 
-    # tweepy
     auth = tweepy.OAuthHandler(os.getenv("CONSUMER_KEY"), os.getenv("CONSUMER_SECRET"))
     auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
     tweepy_api = tweepy.API(auth)
