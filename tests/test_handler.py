@@ -140,7 +140,7 @@ def test_get_unposted(entries, expected, table):
         ),
     ],
 )
-def test_dynamodb_journal_update_posted(entries, key, expected, table):
+def test_update_posted(entries, key, expected, table):
     dynamodb_insert_entries(entries, table)
     app.update_posted(table, key)
 
@@ -165,7 +165,7 @@ def test_dynamodb_journal_update_posted(entries, key, expected, table):
         ),
     ],
 )
-def test_dynamodb_journal_update_posted_error(entries, key, table):
+def test_update_posted_error(entries, key, table):
     dynamodb_insert_entries(entries, table)
 
     with pytest.raises(ClientError):
@@ -207,7 +207,7 @@ def test_s3_image_handler_callback_error(file, callback, bucket):
     simple_upload=MagicMock(return_value=create_media("123")),
     update_status=MagicMock(return_value=Status(456)),
 )
-def test_tweepy_tweeter(**mocks):
+def test_post(**mocks):
     with tempfile.SpooledTemporaryFile("test-0.png") as file_handle:
         assert app.post(tweepy.API(), "test-0.png", file_handle)
 
