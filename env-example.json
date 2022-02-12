@@ -1,0 +1,11 @@
+{
+    "TwimbotFunction": {
+        "DYNAMODB_TABLE": "",
+        "DYNAMODB_INDEX": "",
+        "S3_BUCKET": "",
+        "ACCESS_TOKEN": "",
+        "ACCESS_TOKEN_SECRET": "",
+        "CONSUMER_KEY": "",
+        "CONSUMER_SECRET": ""
+    }
+}
