@@ -9,10 +9,9 @@ from dataclasses import dataclass
 
 import tweepy
 
-DYNAMODB_REGION = "us-east-1"
 DYNAMODB_TABLE = "table"
 DYNAMODB_INDEX = "index"
-S3_REGION = "us-east-1"
+AWS_REGION = "us-east-1"
 S3_BUCKET = "bucket"
 
 
@@ -20,7 +19,7 @@ S3_BUCKET = "bucket"
 def table():
     mock_dynamodb = mock_dynamodb2()
     mock_dynamodb.start()
-    dynamodb = boto3.resource("dynamodb", region_name=DYNAMODB_REGION)
+    dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
     dynamodb.create_table(
         TableName=DYNAMODB_TABLE,
         KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
@@ -46,7 +45,7 @@ def table():
             },
         ],
     )
-    yield boto3.resource("dynamodb", region_name=DYNAMODB_REGION).Table(DYNAMODB_TABLE)
+    yield boto3.resource("dynamodb", region_name=AWS_REGION).Table(DYNAMODB_TABLE)
     mock_dynamodb.stop()
 
 
@@ -60,14 +59,14 @@ def dynamodb_insert_entries(entries, dynamodb_table):
 def bucket():
     s3 = mock_s3()
     s3.start()
-    s3_resource = boto3.resource("s3", region_name=S3_REGION)
+    s3_resource = boto3.resource("s3", region_name=AWS_REGION)
     s3_resource.create_bucket(Bucket=S3_BUCKET)
     yield s3_resource.Bucket(S3_BUCKET)
     s3.stop()
 
 
 def add_to_bucket(file):
-    boto3.client("s3", region_name=S3_REGION).put_object(
+    boto3.client("s3", region_name=AWS_REGION).put_object(
         Bucket=S3_BUCKET, Key=file["filename"], Body=file["data"]
     )
 

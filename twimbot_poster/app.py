@@ -10,6 +10,8 @@ import logging
 import boto3
 import tweepy
 
+logging.basicConfig(level=logging.ERROR)
+
 logger = logging.getLogger(__name__)
 
 
@@ -63,6 +65,7 @@ def lambda_handler(event, context):
 
     logger.debug(event)
     logger.debug(context)
+    logger.info("AWS Region: {}".format(os.getenv("AWS_REGION")))
 
     # table
     table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
@@ -70,7 +73,7 @@ def lambda_handler(event, context):
     )
 
     # bucket
-    bucket = boto3.resource("s3", region_name=os.getenv("S3_REGION")).Bucket(
+    bucket = boto3.resource("s3", region_name=os.getenv("AWS_REGION")).Bucket(
         os.getenv("S3_BUCKET")
     )
 

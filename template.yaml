@@ -24,7 +24,6 @@ Resources:
                     DYNAMODB_INDEX: !Ref DynamoDbIndex
                     DYNAMODB_TABLE: !Ref DynamoDbTable
                     S3_BUCKET: !Ref S3Bucket
-                    S3_REGION: !Ref S3Region
                     ACCESS_TOKEN: !Ref AccessToken
                     ACCESS_TOKEN_SECRET: !Ref AccessTokenSecret
                     CONSUMER_KEY: !Ref ConsumerKey
@@ -35,8 +34,6 @@ Parameters:
     DynamoDbTable:
         Type: String
     S3Bucket:
-        Type: String
-    S3Region:
         Type: String
     AccessToken:
         Type: String
