@@ -1,18 +1,46 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: >
-    twimbot-poster
+Description: twimbot-poster
 
-    Sample SAM Template for twimbot-poster
-
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
     Function:
         Timeout: 10
 
 Resources:
-    HelloWorldFunction:
-        Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    TwimbotTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: !Ref DynamoDbTable
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: "S"
+                - AttributeName: process_time
+                  AttributeType: "N"
+            KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+            GlobalSecondaryIndexes:
+                - IndexName: !Ref DynamoDbIndex
+                  KeySchema:
+                      - AttributeName: process_time
+                        KeyType: HASH
+                  Projection:
+                      ProjectionType: "INCLUDE"
+                      NonKeyAttributes:
+                          - id
+                          - title
+                  ProvisionedThroughput:
+                      ReadCapacityUnits: "1"
+                      WriteCapacityUnits: "1"
+            ProvisionedThroughput:
+                ReadCapacityUnits: "1"
+                WriteCapacityUnits: "1"
+    TwimbotBucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: !Ref S3Bucket
+    TwimbotFunction:
+        Type: AWS::Serverless::Function
         Properties:
             CodeUri: twimbot_poster/
             Handler: app.lambda_handler
@@ -28,6 +56,23 @@ Resources:
                     ACCESS_TOKEN_SECRET: !Ref AccessTokenSecret
                     CONSUMER_KEY: !Ref ConsumerKey
                     CONSUMER_SECRET: !Ref ConsumerSecret
+            Policies:
+                - Statement:
+                      - Sid: S3ReadBucket
+                        Effect: Allow
+                        Action:
+                            - s3:GetObject
+                            - s3:ListBucket
+                        Resource: !GetAtt TwimbotBucket.Arn
+                - Statement:
+                      - Sid: DynamoDBReadWriteTable
+                        Effect: Allow
+                        Action:
+                            - dynamodb:GetItem
+                            - dynamodb:Scan
+                            - dynamodb:Query
+                            - dynamodb:UpdateItem
+                        Resource: !GetAtt TwimbotTable.Arn
 Parameters:
     DynamoDbIndex:
         Type: String
