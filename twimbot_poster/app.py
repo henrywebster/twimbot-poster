@@ -22,6 +22,17 @@ def get_unposted(table, index):
     return table.scan(IndexName=index)["Items"]
 
 
+def choose_image(lst):
+    """
+    Select an image from possible choices.
+    """
+    if lst is None:
+        logger.error(
+            "No unposted images found in index: %s", os.getenv("DYNAMODB_INDEX")
+        )
+    return random.choice(lst)
+
+
 def handle_image(bucket, filename, callback):
     """
     Process an image file from Amazon S3.
@@ -65,7 +76,7 @@ def lambda_handler(event, context):
 
     logger.debug(event)
     logger.debug(context)
-    logger.info("AWS Region: {}".format(os.getenv("AWS_REGION")))
+    logger.info("AWS Region: %s", os.getenv("AWS_REGION"))
 
     # table
     table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
@@ -82,7 +93,7 @@ def lambda_handler(event, context):
     auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
     tweepy_api = tweepy.API(auth)
 
-    image = random.choice(get_unposted(table, os.getenv("DYNAMODB_INDEX")))
+    image = choose_image(get_unposted(table, os.getenv("DYNAMODB_INDEX")))
     result = handle_image(
         bucket,
         image["id"],

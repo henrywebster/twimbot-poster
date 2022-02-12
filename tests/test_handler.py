@@ -210,3 +210,12 @@ def test_s3_image_handler_callback_error(file, callback, bucket):
 def test_tweepy_tweeter(**mocks):
     with tempfile.SpooledTemporaryFile("test-0.png") as file_handle:
         assert app.post(tweepy.API(), "test-0.png", file_handle)
+
+
+def test_choose_image():
+    assert app.choose_image([1]) == 1
+
+
+def test_choose_image_empty_list_error():
+    with pytest.raises(IndexError):
+        app.choose_image([])
