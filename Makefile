@@ -18,7 +18,7 @@ invoke:
 
 test: $(SRC_DIR) $(TEST_DIR)
 	flake8 $(SRC_DIR) $(TEST_DIR) &&\
-		pytest -v $(TEST_DIR)/ &&\
+		pytest --verbose --cov=./ --cov-report=xml $(TEST_DIR)/ &&\
 		pylint $(SRC_DIR)
 
 format:
