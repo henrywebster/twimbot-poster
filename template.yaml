@@ -73,12 +73,13 @@ Resources:
                             - dynamodb:Query
                             - dynamodb:UpdateItem
                         Resource: !GetAtt TwimbotTable.Arn
-        TwimbotRule:
-            Type: AWS::Events::Rule
-            Properties:
-                ScheduleExpression: cron(00 17 ? * 7 *)
-                Targets:
-                    - !GetAtt TwimbotFunction.Arn
+    TwimbotRule:
+        Type: AWS::Events::Rule
+        Properties:
+            ScheduleExpression: cron(00 17 ? * 7 *)
+            Targets:
+                - Arn: !GetAtt TwimbotFunction.Arn
+                  Id: twimbot-post-target
 Parameters:
     DynamoDbIndex:
         Type: String
