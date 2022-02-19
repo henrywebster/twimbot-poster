@@ -68,7 +68,10 @@ Resources:
                         Action:
                             - s3:GetObject
                             - s3:ListBucket
-                        Resource: !GetAtt TwimbotBucket.Arn
+                        Resource: !Join
+                            - ""
+                            - - !GetAtt TwimbotBucket.Arn
+                              - "/*"
                 - Statement:
                       - Sid: DynamoDBReadWriteTable
                         Effect: Allow
