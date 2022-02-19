@@ -3,6 +3,7 @@ Application logic for twimbot-poster.
 """
 
 import json
+import traceback
 import os
 import tempfile
 import random
@@ -90,19 +91,23 @@ def lambda_handler(event, context):
     logger.debug(event)
     logger.debug(context)
 
-    table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
-        os.getenv("DYNAMODB_TABLE")
-    )
-
-    bucket = boto3.resource("s3", region_name=os.getenv("AWS_REGION")).Bucket(
-        os.getenv("S3_BUCKET")
-    )
-
-    auth = tweepy.OAuthHandler(os.getenv("CONSUMER_KEY"), os.getenv("CONSUMER_SECRET"))
-    auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
-    tweepy_api = tweepy.API(auth)
-
     try:
+        table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
+            os.getenv("DYNAMODB_TABLE")
+        )
+
+        bucket = boto3.resource("s3", region_name=os.getenv("AWS_REGION")).Bucket(
+            os.getenv("S3_BUCKET")
+        )
+
+        auth = tweepy.OAuthHandler(
+            os.getenv("CONSUMER_KEY"), os.getenv("CONSUMER_SECRET")
+        )
+        auth.set_access_token(
+            os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET")
+        )
+        tweepy_api = tweepy.API(auth)
+
         result = handle(table, os.getenv("DYNAMODB_INDEX"), bucket, tweepy_api)
         return {
             "statusCode": 200,
@@ -111,4 +116,5 @@ def lambda_handler(event, context):
             ),
         }
     except Exception as err:  # pylint: disable=broad-except
-        return {"statusCode": 500, "body": json.dumps({"message": err})}
+        logger.error(traceback.format_exc())
+        return {"statusCode": 500, "body": json.dumps({"message": str(err)})}
