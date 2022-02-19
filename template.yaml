@@ -58,7 +58,7 @@ Resources:
                     CONSUMER_SECRET: !Ref ConsumerSecret
             Events:
                 Trigger:
-                    Type: EventBridgeRule
+                    Type: Schedule
                     Properties:
                         ScheduleExpression: cron(00 17 ? * 7 *)
             Policies:
