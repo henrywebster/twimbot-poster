@@ -56,6 +56,11 @@ Resources:
                     ACCESS_TOKEN_SECRET: !Ref AccessTokenSecret
                     CONSUMER_KEY: !Ref ConsumerKey
                     CONSUMER_SECRET: !Ref ConsumerSecret
+            Events:
+                Trigger:
+                    Type: Schedule
+                    Properties:
+                        Schedule: cron(00 17 ? * 7 *)
             Policies:
                 - Statement:
                       - Sid: S3ReadBucket
@@ -63,7 +68,10 @@ Resources:
                         Action:
                             - s3:GetObject
                             - s3:ListBucket
-                        Resource: !GetAtt TwimbotBucket.Arn
+                        Resource: !Join
+                            - ""
+                            - - !GetAtt TwimbotBucket.Arn
+                              - "/*"
                 - Statement:
                       - Sid: DynamoDBReadWriteTable
                         Effect: Allow
@@ -73,13 +81,6 @@ Resources:
                             - dynamodb:Query
                             - dynamodb:UpdateItem
                         Resource: !GetAtt TwimbotTable.Arn
-    TwimbotRule:
-        Type: AWS::Events::Rule
-        Properties:
-            ScheduleExpression: cron(00 17 ? * 7 *)
-            Targets:
-                - Arn: !GetAtt TwimbotFunction.Arn
-                  Id: twimbot-post-target
 Parameters:
     DynamoDbIndex:
         Type: String
