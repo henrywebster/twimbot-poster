@@ -217,5 +217,30 @@ def test_choose_image():
 
 
 def test_choose_image_empty_list_error():
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError):
         app.choose_image([])
+
+
+@patch.multiple(
+    "tweepy.API",
+    simple_upload=MagicMock(return_value=create_media("123")),
+    update_status=MagicMock(return_value=Status(456)),
+)
+def test_handler_success(bucket, table, **mocks):
+    add_to_bucket({"filename": "test-0.png", "data": b"testdata"})
+    dynamodb_insert_entries(
+        [{"id": "test-0.png", "title": "example-0", "process_time": 1000}], table
+    )
+    result = app.handle(table, DYNAMODB_INDEX, bucket, tweepy.API())
+    assert result["image"] == "test-0.png"
+    assert result["post_id"] == 456
+
+
+@patch.multiple(
+    "tweepy.API",
+    simple_upload=MagicMock(return_value=create_media("123")),
+    update_status=MagicMock(return_value=Status(456)),
+)
+def test_handler_exception(bucket, table, **mocks):
+    with pytest.raises(ValueError):
+        app.handle(table, DYNAMODB_INDEX, bucket, tweepy.API())

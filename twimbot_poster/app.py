@@ -26,10 +26,8 @@ def choose_image(lst):
     """
     Select an image from possible choices.
     """
-    if lst is None:
-        logger.error(
-            "No unposted images found in index: %s", os.getenv("DYNAMODB_INDEX")
-        )
+    if not lst:
+        raise ValueError("No unposted images returned from index.")
     return random.choice(lst)
 
 
@@ -69,6 +67,21 @@ def update_posted(table, key):
     )
 
 
+def handle(table, index, bucket, tweepy_api):
+    """
+    Use the given AWS resources to post a random image to Twitter.
+    """
+
+    image = choose_image(get_unposted(table, index))
+    result = handle_image(
+        bucket,
+        image["id"],
+        lambda file_handle: post(tweepy_api, image["title"], file_handle),
+    )
+    update_posted(table, image["id"])
+    return {"image": image["id"], "post_id": result}
+
+
 def lambda_handler(event, context):
     """
     Process incoming events.
@@ -90,13 +103,7 @@ def lambda_handler(event, context):
     auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
     tweepy_api = tweepy.API(auth)
 
-    image = choose_image(get_unposted(table, os.getenv("DYNAMODB_INDEX")))
-    result = handle_image(
-        bucket,
-        image["id"],
-        lambda file_handle: post(tweepy_api, image["title"], file_handle),
-    )
-    update_posted(table, image["id"])
+    result = handle(table, os.getenv("DYNAMODB_INDEX"), bucket, tweepy_api)
 
     return {
         "statusCode": 200,
