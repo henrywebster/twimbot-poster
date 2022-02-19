@@ -1,8 +1,11 @@
+import os
+import json
 import pytest
 import boto3
 from moto import mock_dynamodb2, mock_s3
 from botocore.exceptions import ClientError
 from twimbot_poster import app
+import unittest
 from unittest.mock import MagicMock, patch
 import tempfile
 from dataclasses import dataclass
@@ -217,5 +220,82 @@ def test_choose_image():
 
 
 def test_choose_image_empty_list_error():
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError):
         app.choose_image([])
+
+
+@patch.multiple(
+    "tweepy.API",
+    simple_upload=MagicMock(return_value=create_media("123")),
+    update_status=MagicMock(return_value=Status(456)),
+)
+def test_handler_success(bucket, table, **mocks):
+    add_to_bucket({"filename": "test-0.png", "data": b"testdata"})
+    dynamodb_insert_entries(
+        [{"id": "test-0.png", "title": "example-0", "process_time": 1000}], table
+    )
+    result = app.handle(table, DYNAMODB_INDEX, bucket, tweepy.API())
+    assert result["image"] == "test-0.png"
+    assert result["post_id"] == 456
+
+
+@patch.multiple(
+    "tweepy.API",
+    simple_upload=MagicMock(return_value=create_media("123")),
+    update_status=MagicMock(return_value=Status(456)),
+)
+def test_handler_exception(bucket, table, **mocks):
+    with pytest.raises(ValueError):
+        app.handle(table, DYNAMODB_INDEX, bucket, tweepy.API())
+
+
+class LambdaHandlerTests(unittest.TestCase):
+    def setUp(self):
+        os.environ["AWS_REGION"] = AWS_REGION
+        os.environ["S3_BUCKET"] = S3_BUCKET
+        os.environ["DYNAMODB_TABLE"] = DYNAMODB_TABLE
+        os.environ["DYNAMODB_INDEX"] = DYNAMODB_INDEX
+
+    def tearDown(self):
+        os.environ.pop("AWS_REGION", None)
+        os.environ.pop("S3_BUCKET", None)
+        os.environ.pop("DYNAMODB_TABLE", None)
+        os.environ.pop("DYNAMODB_INDEX", None)
+
+    @patch("tweepy.OAuthHandler")
+    @patch.object(tweepy.OAuthHandler, "set_access_token", return_value="")
+    @patch.object(app, "handle", return_value={"image": "test.png", "post_id": 123})
+    @mock_dynamodb2
+    @mock_s3
+    def test_lambda_handler_success(
+        self, tweepy_ctor_mock, tweepy_access_token_mock, handle_mock
+    ):
+        response = app.lambda_handler({}, {})
+
+        assert response["statusCode"] == 200
+
+        body = json.loads(response["body"])
+
+        assert body["image"] == "test.png"
+        assert body["post_id"] == 123
+
+    @patch("tweepy.OAuthHandler")
+    @patch.object(tweepy.OAuthHandler, "set_access_token", return_value="")
+    @patch.object(
+        app,
+        "handle",
+        side_effect=lambda *args: (_ for _ in ()).throw(
+            ValueError("No entries found in the index.")
+        ),
+    )
+    @mock_dynamodb2
+    @mock_s3
+    def test_lambda_handler_failure(
+        self, tweepy_ctor_mock, tweepy_access_token_mock, handle_mock
+    ):
+        response = app.lambda_handler({}, {})
+
+        assert response["statusCode"] == 500
+        body = json.loads(response["body"])
+
+        assert body["message"] == "No entries found in the index."
