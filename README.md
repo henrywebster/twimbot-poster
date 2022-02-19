@@ -17,3 +17,7 @@ The project started as a way to learn Amazon Web Services and as a creative outl
 | EventBridge | Scheduling |
 | Lambda | Code execution |
 
+### Diagram
+
+
+![twimbot-v1](https://user-images.githubusercontent.com/14267649/154808683-3d744845-a2bc-4dd4-84e7-e2a86d059091.png)
