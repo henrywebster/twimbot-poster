@@ -60,7 +60,7 @@ Resources:
                 Trigger:
                     Type: Schedule
                     Properties:
-                        ScheduleExpression: cron(00 17 ? * 7 *)
+                        Schedule: cron(00 17 ? * 7 *)
             Policies:
                 - Statement:
                       - Sid: S3ReadBucket
