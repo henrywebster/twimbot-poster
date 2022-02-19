@@ -89,7 +89,6 @@ def lambda_handler(event, context):
 
     logger.debug(event)
     logger.debug(context)
-    logger.info("AWS Region: %s", os.getenv("AWS_REGION"))
 
     table = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION")).Table(
         os.getenv("DYNAMODB_TABLE")
@@ -103,14 +102,13 @@ def lambda_handler(event, context):
     auth.set_access_token(os.getenv("ACCESS_TOKEN"), os.getenv("ACCESS_TOKEN_SECRET"))
     tweepy_api = tweepy.API(auth)
 
-    result = handle(table, os.getenv("DYNAMODB_INDEX"), bucket, tweepy_api)
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps(
-            {
-                "message": "hello world",
-                "data": {"id": result},
-            }
-        ),
-    }
+    try:
+        result = handle(table, os.getenv("DYNAMODB_INDEX"), bucket, tweepy_api)
+        return {
+            "statusCode": 200,
+            "body": json.dumps(
+                {"image": result["image"], "post_id": result["post_id"]}
+            ),
+        }
+    except Exception as err:  # pylint: disable=broad-except
+        return {"statusCode": 500, "body": json.dumps({"message": err})}

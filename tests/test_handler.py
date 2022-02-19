@@ -244,3 +244,16 @@ def test_handler_success(bucket, table, **mocks):
 def test_handler_exception(bucket, table, **mocks):
     with pytest.raises(ValueError):
         app.handle(table, DYNAMODB_INDEX, bucket, tweepy.API())
+
+
+# def test_create_message_success():
+#     response = app.create_response(image="test.png", post_id=123)
+
+#     assert response["image"] == "test.png"
+#     assert response["post_id"] == 123
+
+
+# def test_create_message_failure():
+#     response = app.create_response(message="No unposted images returned from index.")
+
+#     assert response["message"] == "No unposted images returned from index."
